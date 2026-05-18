@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web GIS Kelautan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+
+    /* ============================================
+       VARIABEL & RESET
+    ============================================ */
+    :root {
+      --biru-tua   : #0d3b5e;
+      --biru-mid   : #1565a4;
+      --biru-muda  : #e8f4fd;
+      --teal       : #0e8a8a;
+      --emas       : #c9972b;
+      --putih      : #ffffff;
+      --abu-terang : #f5f7fa;
+      --abu-garis  : #dde3ea;
+      --teks-gelap : #1c2b3a;
+      --teks-mid   : #3d5166;
+      --teks-ringan: #6b8299;
+      --shadow     : 0 4px 24px rgba(13,59,94,.10);
+      --radius     : 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--abu-terang);
+      color: var(--teks-gelap);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 400;
+      font-size: 15.5px;
+      line-height: 1.85;
+    }
+
+    /* ============================================
+       NAVBAR
+    ============================================ */
+    .navbar {
+      background: var(--biru-tua);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 36px;
+      height: 54px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    }
+    .navbar-brand {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: .03em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .navbar-brand .dot {
+      width: 8px; height: 8px;
+      background: var(--teal);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .navbar-links {
+      list-style: none;
+      display: flex;
+      gap: 24px;
+    }
+    .navbar-links a {
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .navbar-links a:hover { color: #fff; }
+
+    /* ============================================
+       HERO / HEADER ARTIKEL
+    ============================================ */
+    .hero {
+      background: linear-gradient(135deg, var(--biru-tua) 0%, #0a5b8a 60%, var(--teal) 100%);
+      color: #fff;
+      padding: 60px 36px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* dekorasi lingkaran */
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.07);
+      right: -120px; top: -140px;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.06);
+      right: 40px; top: -40px;
+    }
+    .hero-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 30px;
+      padding: 4px 16px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.85);
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: rgba(255,255,255,.75);
+    }
+    .hero-desc {
+      font-size: 14.5px;
+      color: rgba(255,255,255,.72);
+      max-width: 600px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.15);
+      font-size: 12px;
+      color: rgba(255,255,255,.5);
+    }
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ============================================
+       LAYOUT UTAMA
+    ============================================ */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 44px 36px 60px;
+    }
+
+    /* ============================================
+       ABSTRAK
+    ============================================ */
+    .abstrak {
+      background: var(--biru-muda);
+      border-left: 4px solid var(--biru-mid);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 22px 28px;
+      margin-bottom: 44px;
+    }
+    .abstrak-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--biru-mid);
+      margin-bottom: 8px;
+    }
+    .abstrak p {
+      font-size: 14px;
+      color: var(--teks-mid);
+      margin: 0;
+      line-height: 1.75;
+    }
+
+    /* ============================================
+       SECTION
+    ============================================ */
+    .section {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+    }
+    .section-num {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .section h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--biru-tua);
+      line-height: 1.3;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--biru-muda);
+      margin-bottom: 18px;
+    }
+    .section h3 {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--teal);
+      margin: 22px 0 8px;
+    }
+    .section p {
+      color: var(--teks-mid);
+      margin-bottom: 14px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+
+    /* sitasi superscript */
+    sup.ref {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--biru-mid);
+    }
+    sup.ref a {
+      color: inherit;
+      text-decoration: none;
+    }
+    sup.ref a:hover { text-decoration: underline; }
+
+    /* callout */
+    .callout {
+      background: #fffbf0;
+      border: 1px solid #f0d98c;
+      border-left: 4px solid var(--emas);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px;
+      margin: 18px 0;
+    }
+    .callout-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--emas);
+      margin-bottom: 7px;
+    }
+    .callout p {
+      font-size: 13.5px;
+      color: #5a4a1a;
+      margin: 0 !important;
+    }
+
+    /* blockquote */
+    blockquote {
+      border-left: 3px solid var(--biru-mid);
+      margin: 20px 0;
+      padding: 6px 0 6px 20px;
+      font-family: 'Lora', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--teks-mid);
+      line-height: 1.65;
+    }
+
+    /* ============================================
+       TABEL REFERENSI
+    ============================================ */
+    .referensi-section {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+    }
+    .referensi-section h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--biru-tua);
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--biru-muda);
+      margin-bottom: 8px;
+    }
+    .ref-note {
+      font-size: 12.5px;
+      color: var(--teks-ringan);
+      margin-bottom: 22px;
+      font-style: italic;
+    }
+    .ref-list {
+      list-style: none;
+      counter-reset: ref;
+    }
+    .ref-list li {
+      counter-increment: ref;
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--abu-garis);
+      font-size: 13.5px;
+      color: var(--teks-mid);
+      line-height: 1.7;
+      align-items: start;
+    }
+    .ref-list li:last-child { border-bottom: none; padding-bottom: 0; }
+    .ref-list li::before {
+      content: '[' counter(ref) ']';
+      color: var(--biru-mid);
+      font-weight: 700;
+      font-size: 12.5px;
+      padding-top: 2px;
+    }
+    .ref-list a {
+      color: var(--biru-mid);
+      word-break: break-all;
+      font-size: 12.5px;
+    }
+    .ref-list a:hover { text-decoration: underline; }
+    .badge-tahun {
+      display: inline-block;
+      background: var(--biru-tua);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 30px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .scholar-tip {
+      font-size: 11.5px;
+      color: var(--teks-ringan);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* ============================================
+       IDENTITAS MAHASISWA
+    ============================================ */
+    .identitas-wrapper {
+      background: var(--putih);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .identitas-header {
+      background: var(--biru-tua);
+      padding: 18px 36px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .identitas-header .icon {
+      width: 42px; height: 42px;
+      background: rgba(255,255,255,.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .identitas-header h3 {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+    .identitas-header p {
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      margin: 2px 0 0;
+    }
+    .identitas-body {
+      padding: 28px 36px;
+    }
+    .identitas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 36px;
+    }
+    .id-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--teks-ringan);
+      margin-bottom: 6px;
+    }
+    .id-field .id-value {
+      background: var(--abu-terang);
+      border: 1px solid var(--abu-garis);
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--teks-gelap);
+      min-height: 42px;
+      /* ─── GANTI TEKS DI BAWAH INI ─── */
+    }
+
+    /* kolom dosen span full width */
+    .id-field.full { grid-column: 1 / -1; }
+
+    .identitas-footer {
+      padding: 14px 36px 20px;
+      border-top: 1px solid var(--abu-garis);
+      font-size: 12px;
+      color: var(--teks-ringan);
+      font-style: italic;
+    }
+
+    /* ============================================
+       FOOTER HALAMAN
+    ============================================ */
+    footer {
+      background: var(--biru-tua);
+      color: rgba(255,255,255,.45);
+      text-align: center;
+      padding: 22px 36px;
+      font-size: 12px;
+      letter-spacing: .05em;
+      line-height: 1.9;
+    }
+    footer strong { color: rgba(255,255,255,.7); }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 680px) {
+      .navbar { padding: 0 18px; }
+      .navbar-links { display: none; }
+      .hero { padding: 40px 18px 36px; }
+      .container { padding: 28px 18px 48px; }
+      .section, .referensi-section, .identitas-wrapper .identitas-body { padding: 24px 18px; }
+      .identitas-header { padding: 16px 18px; }
+      .identitas-grid { grid-template-columns: 1fr; }
+      .id-field.full { grid-column: 1; }
+      .identitas-footer { padding: 12px 18px 16px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ══════════ NAVBAR ══════════ -->
+<nav class="navbar">
+  <a class="navbar-brand" href="#">
+    <span class="dot"></span> Mata Kuliah Web GIS Kelautan
+  </a>
+  <ul class="navbar-links">
+    <li><a href="#artikel">Artikel</a></li>
+    <li><a href="#referensi">Referensi</a></li>
+    <li><a href="#identitas">Identitas</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">🌊 Echosounder Sederhana</span>
+    <h1>Kelebihan dan Kekurangan Echosounder Sederhana<br><em>Dasar-Dasar Akustik</em></h1>
+    <p class="hero-desc">
+      Tinjauan singkat Echosounder Sederhana <em>Fish Finder</em>,
+      Echogram.
+    </p>
+    <div class="hero-meta">
+      <span>📅 Literatur</span>
+      <span>🏫 Ilmu Kelautan · Web GIS Kelautan</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ KONTEN ══════════ -->
+<div class="container" id="artikel">
+
+  <!-- ABSTRAK -->
+  <div class="abstrak">
+    <div class="abstrak-label">Abstrak</div>
+    <p>
+      Pengaplikasian teknologi akustik yang semakin berkembang dari tahun ke tahun terkhusus di bidang kelautan menjadikan 
+	  ilmu akustik ini semakin dibutuhkan di berbagai ruang lingkup. Contohnya pada budidaya perairan, survei kelautan dan 
+	  perikanan di wilayah perairan, mendeteksi sumber daya hayati dan non hayati, dan penentuan tipe dasar perairan.
+	  Akustik kelautan memanfaatkan sifat fisik medium air — khususnya kecepatan suara sekitar
+      <strong>1.500 m/s</strong> — untuk mendeteksi objek, memetakan dasar laut, memantau ekosistem,
+      hingga mempelajari perubahan iklim samudra.
+    </p>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section">
+    <span class="section-num">Bagian 1</span>
+    <h2>Pendahuluan</h2>
+    <p>
+      Sebuah perangkat dengan sistem sonar yang di gunakan untuk mengukur bawah perairan adalah <em>echosounder.</em> 
+      <em>Echosounder</em> menjadi salah satu alat utama dalam eksplorasi bawah laut dan memiliki fungsi dasar yaitu 
+	  untuk mengukur kedalaman dari suatu perairan dengan memancarkan gelombang suara dari permukaan perairan
+	  menggunakan tranducer menuju dasar perairan. Waktu pantulan gelombang suara akan di catat sampai gelombang
+	  suara memantul kembali dan terdeteksi oleh transducer (Syibli dan Nuryaman, 2021).  
+    </p>
+    <p>
+      Alat echosounder paling sederhana salah satunya adalah <em>GPS Map</em>. Alat <em>GPS Map</em> umum di gunakan sebagai instrumen 
+	  untuk mengukur kedalaman suatu perairan, suhu, untuk navigasi, dan dapat juga di gunakan untuk pemetaan dasar perairan. 
+	  <em>GPS Map</em> memiliki frekuensi gelombang suara 50 kHz-200 kHz dengan daya pancar sebesar 500 w dan kedalaman maksimum
+	  yang dapat di jangkau yaitu 1500 ft atau sekitar 457,2 m. Sehingga <em>GPS Map</em> masih memenuhi spesifikasi yang 
+	  di gunakan untuk kegiatan pemetaan kedalaman laut walaupun alat ini sendiri terbilang alat echosounder sederhana (Darmawan et al. 2019) .
+    </p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section">
+    <span class="section-num">Bagian 2</span>
+    <h2>Kelebihan dan Kekurangan <em>Echosounder</em> Sederhana</h2>
+    <p>
+      <em>Echosounder</em> sederhana memiliki kelebihan dan kekurangan. Kelebihan dari <em>echosounder</em> sederhana yaitu dapat mempermudah 
+	  nelayan dalam menentukan lokasi penangkapan ikan, data yang di tampilkan pada <em>display</em> ketika menggunakan <em>echosounder</em> 
+	  sederhana ini bersifat real time, ramah lingkungan, dan harga <em>echosounder</em> sederhana terjangkau. 
+    </p>
+    <p>
+      Untuk kekurangan dari <em>echosounder</em> sederhana ini yaitu, objek yang terdeteksi hanya berupa tampilan warna pada <em>display</em> 
+	  sehingga harus di lakukan pengamatan lebih lanjut, <em>echosounder</em> sederhana juga tidak memiliki tempat penyimpanan data sehingga 
+	  data yang sudah di dapat dan di tampilkan pada display bersifat sementara (Suteja et al. 2019).
+    </p>
+
+    <div class="callout">
+      <div class="callout-title">💡 Fakta Kunci</div>
+      <p>
+        Kelebihan : Membantu nelayan menentukan lokasi ikan, Tampilan <em>real-time</em>, Ramah lingkungan, Harga terjangkau
+		Kekurangan : Tampilan hanya berupa warna, Tidak ada penyimpanan data.
+      </p>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section">
+    <span class="section-num">Bagian 3</span>
+    <h2><em>Fish Finder</em></h2>
+    <p>
+      <em>Fish Finder</em> memiliki banyak kegunaan. Selain dapat mendeteksi sekumpulan ikan, <em>fish finder</em> juga dapat menentukan lokasi 
+	  penangkapan ikan atau <em>fishing ground</em>. Frekuensi yang di pancarkan oleh <em>transducer fish finder</em> berkisar antara 15 kHz sampai
+	  455 kHz yang kemudian pancaran tersebut akan memantul ketika mengenai dasar perairan dan di terima kembali oleh <em>transduser</em>. 
+	  Gelombang yang di terima akan di proses dan di tampilkan pada <em>display</em> berupa informasi kedalaman dan objek-objek yang terdapat di 
+	  perairan, proses tersebut akan terjadi secara berulang (Alwi, 2020).
+    </p>
+
+    <blockquote>
+      <em>Fish finder</em> memiliki 3 komponen yang terdiri dari <em>display</em> untuk menampilkan hasil yang di deteksi di perairan,
+	  <em>transducer</em> untuk memancarkan dan menangkap sinyal dari perairan, dan antena (Mustasim, 2021).
+    </blockquote>
+
+    <h3>Pentingnya <em>Fish Finder</em></h3>
+    <p>
+      <em>Fish finder</em> menjadi penting dalam proses penurunan alat tangkap nelayan untuk mendapatkan hasil tangkapan. Penurunan alat tangkap 
+	  akan dilakukan jika <em>fish finder</em> sudah mendeteksi adanya sekumpulan ikan. Jika <em>fish finder</em> tidak mendeteksi adanya sekumpulan 
+	  ikan di perairan, maka penurunan alat tangkap akan di batalkan.
+    </p>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section">
+    <span class="section-num">Bagian 4</span>
+    <h2><em>Echogram</em></h2>
+    <p>
+      Pantulan <em>echo</em> atau pulsa akustik dari masing-masing objek memiliki berbagai informasi sesuai dengan bentuk morfologi dasar perairan dan objek 
+	  yang terekam. Rekaman yang di hasilkan oleh <em>echosounder</em> di sebut <em>echogram.</em> . Informasi yang di berikan oleh <em>echogram</em> berupa 
+	  karakteristik dari objek atau target yang terdeteksi, objek yang terdeteksi dapat di gunakan untuk mengklasifikasikan dasar perairan. Terdapat perbedaan 
+	  skala warna pada echogram untuk target atau objek berstruktur keras dan lunak. Objek dengan dengan struktur keras akan menunjukkan nilai piksel yang tinggi. 
+	  Sedangkan, untuk objek dengan struktur lunak menunjukkan nilai piksel yang rendah (Hamuna et al. 2017). 
+    </p>
+    <p>
+      Pengaplikasian <em>echogram</em> akustik ini banyak di gunakan dalam berbagai bidang. Dalam studi biota laut, <em>echogram</em> memberikan informasi 
+	  mengenai kelimpahan, keberadaan, dan distribusi biota laut. Selain itu, <em>echogram</em> dapat memberikan informasi mengenai stok ikan dan ekosistem perairan.
+	  Dalam pemetaan dasar laut, <em>echogram</em> memberikan informasi mengenai substrat yang terdapat di dasar perairan seperti pasir atau lumpur, serta kedalaman perairan. 
+    </p>
+
+  </div>
+  
+
+  <!-- ══════════ REFERENSI ══════════ -->
+  <div class="referensi-section" id="referensi">
+    <h2>📚 Daftar Referensi</h2>
+    <ol class="ref-list">
+
+      <li id="ref1">
+        <div>
+          Alwi D. 2020. <strong>Pelatihan Penggunaan Teknologi Penangkapan Ikan (Fish finder) Kepada Nelayan Tuna Desa Daeo Kabupaten 
+		  Pulau Morotai.</strong> 
+		  <em>Pasca Dharma Pengabdian Masyarakat </em>, Vol.1 (1) : 3-4
+          <span class="scholar-tip">🔍 Google Scholar: "Pelatihan Penggunaan Teknologi Penangkapan Ikan (Fish finder) Kepada Nelayan Tuna Desa Daeo Kabupaten Pulau Morotai"</span>
+        </div>
+      </li>
+
+      <li id="ref2">
+        <div>
+          Darmawan A, Mahmudi M, Nisa TW, Putri CDS, Gurinda GA, Putri AW. 2019. <strong>Kajian Morfometri Ranu Grati
+          Menggunakan GPSMAP 585 dan SIG.</strong> 
+          <em>Oseanologi dan limnologi di indonesia</em>, Vol.4 (3) : 210 
+          <span class="scholar-tip">🔍 Google Scholar: "Kajian Morfometri Ranu Grati Menggunakan GPSMAP 585 dan SIG"</span>
+        </div>
+      </li>
+
+      <li id="ref3">
+        <div>
+          Hamuna B, Dimara L, Pujiyati S, Natih NMN. 2017. <strong>Hambur Balik Akustik Permukaan Substrat Dasar Perairan 
+		  Menggunakan Echosounder Beam Tunggal</strong> 
+		  <em>Sumberdaya Akuatik Indopasifik</em>, Vol. 1 (2) : 26-27
+          <span class="scholar-tip">🔍 Google Scholar: "Hambur Balik Akustik Permukaan Substrat Dasar Perairan Menggunakan Echosounder Beam Tunggal"</span>
+        </div>
+      </li>
+
+      <li id="ref4">
+        <div>
+          Mustasim. 2021. <em>Usaha Penangkapan Ikan Laut Dalam.</em> <strong>Aceh : Syiah Kuala University Press</strong> Hlm. 59 
+          <span class="scholar-tip">🔍 Google Scholar: "Usaha Penangkapan Ikan Laut Dalam"</span>
+        </div>
+      </li>
+
+      <li id="ref5">
+        <div>
+          Suteja Y, Dirgayusa IGNP, Widiastuti IDNN. 2019. <strong>Pelatihan Penggunaan Fishfinder Bagi Nelayan Kedonganan Guna Meningkatan Produksi Perikanan.</strong>
+		  <em>Buletin Udayana Mengabdi</em>, Vol. 18 (1) : 144
+          <span class="scholar-tip">🔍 Google Scholar: "Pelatihan Penggunaan Fishfinder Bagi Nelayan Kedonganan Guna Meningkatan Produksi Perikanan."</span>
+        </div>
+      </li>
+
+      <li id="ref6">
+        <div>
+          Syibli YM, Nuryaman D. 2021. <strong>Peranan Alat Navigasi Di Kapal Untuk Meningkatkan Keselamatan Pelayaran Di Atas Kapal.</strong>
+          <em>Dinamika Bahari</em>, Vol. 2 (1) : 43 
+          <span class="scholar-tip">🔍 Google Scholar: "Peranan Alat Navigasi Di Kapal Untuk Meningkatkan Keselamatan Pelayaran Di Atas Kapal."</span>
+        </div>
+      </li>
+
+    </ol>
+  </div>
+
+  <!-- ══════════ IDENTITAS MAHASISWA ══════════ -->
+  <div class="identitas-wrapper" id="identitas">
+    <div class="identitas-header">
+      <div class="icon">🎓</div>
+      <div>
+        <h3>Identitas Mahasiswa</h3>
+        <p>Tugas Mata Kuliah Web GIS Kelautan</p>
+      </div>
+    </div>
+    <div class="identitas-body">
+      <div class="identitas-grid">
+
+        <!-- NAMA -->
+        <div class="id-field">
+          <label>Nama Lengkap</label>
+          <div class="id-value">
+            <!-- ✏️ Ganti teks di bawah ini dengan nama Anda -->
+            Yunisya Eka Putri
+          </div>
+        </div>
+
+        <!-- NIM -->
+        <div class="id-field">
+          <label>NIM</label>
+          <div class="id-value">
+            <!-- ✏️ Ganti teks di bawah ini dengan NIM Anda -->
+            08051282328044
+          </div>
+        </div>
+
+        <!-- KELAS -->
+        <div class="id-field">
+          <label>Kelas</label>
+          <div class="id-value">
+            <!-- ✏️ Ganti teks di bawah ini dengan kelas Anda -->
+            Ilmu Kelautan — Kelas L1
+          </div>
+        </div>
+
+        <!-- DOSEN PENGAMPU — full width -->
+        <div class="id-field full">
+          <label>Dosen Pengampu</label>
+          <div class="id-value">
+            <!-- ✏️ Ganti teks di bawah ini dengan nama dosen Anda -->
+            Akhmad Tri Prasetyo, S.Kel., M.Si.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <strong>Tugas Mata Kuliah Web GIS Kelautan</strong><br>
+  Sumber: Literatur Google Scholar<br>
+  © 2026
+</footer>
+
+</body>
+</html>
